@@ -17,6 +17,7 @@ const state = {
   transmitProgress: 0,
   cycleNumber: 0,
   autoCycleTimer: null,
+  sensorTime: 0,
 };
 
 const $ = (id) => document.getElementById(id);
@@ -120,7 +121,11 @@ function setPhase(phase) {
 }
 
 function updateReadouts() {
-  const temp = state.scenario === "ice" && state.depth < 8 ? -1.8 : -1.2 + Math.min(state.depth, 300) * .012;
+  const surfaceFactor = clamp(1 - state.depth / 24, 0, 1);
+  const surfaceWave = Math.sin(state.sensorTime * 0.72) * 0.035 + Math.sin(state.sensorTime * 1.45 + 1.4) * 0.018;
+  const depthTemp = -1.65 + Math.min(state.depth, 300) * 0.0105;
+  const temp = (state.scenario === "ice" && state.depth < 8 ? -1.8 : depthTemp) + surfaceWave * surfaceFactor;
+  const pressure = Math.max(0, state.depth / 10 + surfaceWave * surfaceFactor * 0.18);
   const density = state.massKg / state.displacedVolumeM3;
   const displacementShiftMl = Math.round((state.displacedVolumeM3 - state.neutralVolumeM3) * 1000000);
   const densityDisplay = density.toFixed(1);
@@ -132,7 +137,7 @@ function updateReadouts() {
       : { intake: 0.08, outlet: 0.08 };
 
   $("depthValue").textContent = state.depth.toFixed(1);
-  $("pressureValue").textContent = (state.depth / 10).toFixed(1);
+  $("pressureValue").textContent = pressure.toFixed(2);
   $("tempValue").textContent = temp.toFixed(2).replace("-", "−");
   $("salinityValue").textContent = (33.5 + Math.min(state.depth, 300) * .004).toFixed(2);
   $("volumeValue").textContent = displacementShiftMl > 0 ? `+${displacementShiftMl}` : displacementShiftMl < 0 ? `−${Math.abs(displacementShiftMl)}` : "0";
@@ -154,13 +159,15 @@ function updateReadouts() {
 
 function animateOcean() {
   const time = performance.now() / 1000;
+  state.sensorTime = time;
   const surfaceFactor = clamp(1 - state.depth / 18, 0, 1);
-  const swell = Math.sin(time * 0.72) * 7 + Math.sin(time * 1.31 + 1.6) * 3;
-  const chop = Math.sin(time * 2.8 + 0.8) * 1.8;
+  const swell = Math.sin(time * 0.38) * 8 + Math.sin(time * 0.67 + 1.6) * 4;
+  const chop = Math.sin(time * 2.8 + 0.8) * 2.2 + Math.sin(time * 4.1 + 2.1) * 1.1;
   const waveX = (swell + chop) * surfaceFactor;
-  const waveTilt = (Math.sin(time * 0.72 + 0.8) * 2.2 + Math.sin(time * 1.7) * .7) * surfaceFactor;
-  const waveBob = (Math.sin(time * 1.1) * 2.6 + Math.sin(time * 2.6) * .7) * surfaceFactor;
+  const waveTilt = (Math.sin(time * 0.38 + 0.8) * 2.8 + Math.sin(time * 1.7) * .9 + chop * .12) * surfaceFactor;
+  const waveBob = (Math.sin(time * 0.55) * 3.2 + Math.sin(time * 2.6) * 1.0 + chop * .18) * surfaceFactor;
   $("ocean").style.setProperty("--wave-offset", `${swell * 1.8}px`);
+  $("ocean").style.setProperty("--wave-height", `${(swell * 0.55 + 18).toFixed(2)}px`);
   $("float").style.setProperty("--wave-x", `${waveX.toFixed(2)}px`);
   $("float").style.setProperty("--wave-tilt", `${waveTilt.toFixed(2)}deg`);
   $("float").style.setProperty("--wave-bob", `${waveBob.toFixed(2)}px`);

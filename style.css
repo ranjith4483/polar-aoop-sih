@@ -55,14 +55,11 @@ button { font: inherit; }
 .eyebrow { color: var(--cyan); font: 10px "DM Mono", monospace; letter-spacing: .16em; margin: 0 0 12px; }
 h1 { font-size: clamp(32px, 4vw, 64px); line-height: .95; letter-spacing: -.055em; margin: 0; max-width: 470px; }
 .mode-pill { border: 1px solid var(--cyan); color: var(--cyan); padding: 8px 10px; font: 10px "DM Mono", monospace; letter-spacing: .12em; }
-.ocean { --wave-offset: 0px; position: absolute; inset: 0; top: 0; overflow: hidden; background: linear-gradient(#85d9dd 0%, #1a758f 10%, #0b3c5d 39%, #071c32 72%, #04111e 100%); }
-.ocean:before { content: ""; position: absolute; z-index: 1; left: -8%; right: -8%; top: 89px; height: 55px; opacity: .62; transform: translateX(var(--wave-offset)); background:
-  radial-gradient(ellipse at 12% 100%, transparent 0 30px, rgba(230,255,252,.72) 31px 33px, transparent 34px),
-  radial-gradient(ellipse at 42% 100%, transparent 0 38px, rgba(230,255,252,.48) 39px 41px, transparent 42px),
-  radial-gradient(ellipse at 72% 100%, transparent 0 28px, rgba(230,255,252,.64) 29px 31px, transparent 32px);
-  background-size: 420px 55px, 520px 55px, 460px 55px;
-  animation: wave-roll 7s linear infinite;
-}
+.ocean { --wave-offset: 0px; --wave-height: 18px; position: absolute; inset: 0; top: 0; overflow: hidden; background: linear-gradient(#85d9dd 0%, #1a758f 10%, #0b3c5d 39%, #071c32 72%, #04111e 100%); }
+.wave-layer { position: absolute; z-index: 1; left: -12%; right: -12%; top: 88px; height: var(--wave-height); pointer-events: none; transform: translateX(var(--wave-offset)); border-radius: 50%; }
+.wave-back { opacity: .36; background: repeating-radial-gradient(ellipse at 10% 100%, transparent 0 34px, rgba(224,255,252,.42) 35px 37px, transparent 38px 78px); background-size: 520px 58px; animation: wave-roll-slow 13s linear infinite; }
+.wave-mid { top: 96px; opacity: .52; background: repeating-radial-gradient(ellipse at 30% 100%, transparent 0 28px, rgba(226,255,252,.62) 29px 31px, transparent 32px 70px); background-size: 390px 54px; animation: wave-roll 8s linear infinite reverse; }
+.wave-front { top: 106px; opacity: .68; background: repeating-radial-gradient(ellipse at 55% 100%, transparent 0 21px, rgba(239,255,253,.72) 22px 24px, transparent 25px 58px); background-size: 300px 46px; animation: wave-roll-fast 5.5s linear infinite; }
 .ocean:after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(170deg, transparent 0 34px, rgba(151, 232, 232, .06) 35px, transparent 36px); opacity: .55; }
 .surface-line { position: absolute; top: 116px; left: -4%; right: -4%; border-top: 2px solid rgba(224, 255, 251, .7); z-index: 2; transform: translateX(var(--wave-offset)); transition: transform .2s linear; }
 .surface-line span { position: absolute; right: 4vw; top: 9px; color: rgba(232, 255, 252, .7); font: 10px "DM Mono", monospace; }
@@ -81,7 +78,9 @@ h1 { font-size: clamp(32px, 4vw, 64px); line-height: .95; letter-spacing: -.055e
 .scan-beam { display: none; position: absolute; height: 2px; background: var(--coral); left: 20%; right: 20%; top: 145px; z-index: 4; box-shadow: 0 0 20px var(--coral); }
 .scan-beam.active { display: block; animation: scan 1.2s infinite alternate; }
 @keyframes scan { from { opacity: .3; } to { opacity: 1; } }
-@keyframes wave-roll { from { background-position: 0 0, 0 8px, 0 2px; } to { background-position: 420px 0, -520px 8px, 460px 2px; } }
+@keyframes wave-roll { from { background-position: 0 0; } to { background-position: 390px 0; } }
+@keyframes wave-roll-slow { from { background-position: 0 0; } to { background-position: -520px 0; } }
+@keyframes wave-roll-fast { from { background-position: 0 0; } to { background-position: 300px 0; } }
 .ice-shelf { position: absolute; top: 0; left: 0; right: 0; height: 115px; background: #dff5f1; clip-path: polygon(0 0, 100% 0, 100% 72%, 86% 72%, 79% 84%, 65% 70%, 53% 92%, 39% 68%, 25% 83%, 13% 64%, 0 76%); opacity: 0; z-index: 2; transition: opacity .4s; }
 .ice-shelf span { position: absolute; right: 4vw; top: 24px; color: #2d7279; font: 10px "DM Mono", monospace; }
 .ice-shelf.visible { opacity: .95; }
