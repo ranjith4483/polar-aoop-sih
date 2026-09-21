@@ -1,0 +1,191 @@
+<!doctype html>
+<!--
+THESIS: Make buoyancy control tangible, not a static dashboard.
+OWN-WORLD: Polar night navy, phosphor cyan, aurora mint, and alert coral; hard-edged instrument panels.
+STORY: Watch the float dive, profile, ascend, scan, then surface or retreat from ice.
+FIRST VIEWPORT: A full-height ocean section holds the float at left and mission controls/readouts at right.
+FORM: Operate-mode instrument console; the simulation itself is the hero.
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Polar-AOOP | Autonomous Ocean Observation</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">◈</span>
+          <div>
+            <strong>POLAR-AOOP</strong>
+            <span>Autonomous Ocean Observation Platform</span>
+          </div>
+        </div>
+        <div class="mission-meta">
+          <span class="connection"><i></i> SIMULATION LINK</span>
+          <span id="missionClock">00:00:00</span>
+        </div>
+      </header>
+
+      <section class="mission-grid" aria-label="Polar-AOOP simulation">
+        <div id="warningBanner" class="warning-banner hidden" aria-live="assertive">
+          <strong>WARNING</strong>
+          <span id="warningText">Surface obstruction detected.</span>
+        </div>
+
+        <div id="ackOverlay" class="ack-overlay" aria-live="assertive" aria-hidden="true">
+          <div class="ack-card">
+            <span class="ack-kicker">MISSION CONTROL / LINK CONFIRMED</span>
+            <strong id="ackTitle">ACKNOWLEDGEMENT COMPLETE</strong>
+            <span id="ackMessage">Station and satellite received the full mission packet.</span>
+            <div class="ack-seal">✓</div>
+            <small id="ackNext">INITIATING NEXT DIVE RUN</small>
+          </div>
+        </div>
+
+        <div class="ocean-wrap">
+          <div class="ocean-header">
+            <div>
+              <p class="eyebrow">LIVE MISSION / AOOP-07</p>
+              <h1>Density is the engine.</h1>
+            </div>
+            <div class="mode-pill" id="modePill">OPEN WATER</div>
+          </div>
+
+          <div class="ocean" id="ocean">
+            <div class="ice-shelf" id="iceShelf">
+              <span>ICE SHEET</span>
+            </div>
+            <div class="surface-line"><span>SEA SURFACE</span></div>
+            <div class="depth-marker marker-10">10 m</div>
+            <div class="depth-marker marker-50">50 m</div>
+            <div class="depth-marker marker-100">100 m</div>
+            <div class="depth-marker marker-150">150 m</div>
+            <div class="float-track">
+              <div class="float" id="float" aria-label="Profiling float">
+                <div class="antenna"></div>
+                <div class="float-body">
+                  <span class="float-window"></span>
+                  <span class="float-band"></span>
+                </div>
+                <div class="float-fin"></div>
+                <div class="sonar-pulse" id="sonarPulse"></div>
+              </div>
+            </div>
+            <div class="scan-beam" id="scanBeam"></div>
+            <div class="trajectory" id="trajectory"></div>
+            <div class="ocean-readout">
+              <span>DEPTH</span>
+              <strong id="depthValue">0.0</strong><small>m</small>
+            </div>
+
+            <div class="density-panel" aria-live="polite">
+              <div class="density-header">
+                <span>BUOYANCY FLOW</span>
+                <strong><span id="densityValue">1027.0</span><small>kg/m³</small></strong>
+              </div>
+              <div class="flow-lane">
+                <div class="flow-direction inbound" id="inboundFlow"></div>
+                <div class="flow-chip">INTAKE</div>
+                <div class="flow-direction outbound" id="outboundFlow"></div>
+                <div class="flow-chip">OUTLET</div>
+              </div>
+              <div class="density-scale">
+                <span>LOW</span>
+                <span>NEUTRAL</span>
+                <span>HIGH</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="control-panel">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">MISSION CONTROL</p>
+              <h2 id="phaseTitle">Ready to dive</h2>
+            </div>
+            <span class="status-dot" id="statusDot"></span>
+          </div>
+
+          <div class="scenario-toggle" role="group" aria-label="Simulation scenario">
+            <button class="scenario active" data-scenario="open">OPEN WATER</button>
+            <button class="scenario" data-scenario="object">OBJECT OVERHEAD</button>
+            <button class="scenario" data-scenario="ice">ICE OVERHEAD</button>
+          </div>
+
+          <div class="depth-config">
+            <label for="descentDepthInput">Target descent depth</label>
+            <div class="depth-input-wrap">
+              <input id="descentDepthInput" type="number" min="5" max="200" step="1" value="100" />
+              <span>m</span>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button class="secondary-button" id="holdButton" type="button">HOLD DEPTH</button>
+            <button class="secondary-button accent" id="reDescendButton" type="button">RE-INITIATE DESCENT</button>
+          </div>
+
+          <button class="launch-button" id="launchButton">
+            <span class="launch-icon">↓</span>
+            <span><b id="launchLabel">START DIVE CYCLE</b><small>Run full autonomous sequence</small></span>
+          </button>
+
+          <div class="phase-rail" aria-label="Mission phases">
+            <div class="phase active" data-phase="descend"><span>01</span><b>DESCEND</b></div>
+            <div class="phase" data-phase="profile"><span>02</span><b>PROFILE</b></div>
+            <div class="phase" data-phase="ascend"><span>03</span><b>ASCEND</b></div>
+            <div class="phase" data-phase="scan"><span>04</span><b>SCAN / SURFACE</b></div>
+          </div>
+
+          <div class="telemetry-grid">
+            <div class="telemetry">
+              <span>PRESSURE</span><strong id="pressureValue">0.0</strong><small>bar</small>
+            </div>
+            <div class="telemetry">
+              <span>WATER TEMP.</span><strong id="tempValue">−1.20</strong><small>°C</small>
+            </div>
+            <div class="telemetry">
+              <span>SALINITY</span><strong id="salinityValue">33.50</strong><small>PSU</small>
+            </div>
+            <div class="telemetry">
+              <span>VOLUME SHIFT</span><strong id="volumeValue">0</strong><small>mL</small>
+            </div>
+          </div>
+
+          <div class="transmission-panel" id="transmissionPanel" aria-live="polite">
+            <div class="log-heading"><span>DATA UPLINK</span><span id="transmitPercent">0%</span></div>
+            <div class="uplink-row active" id="stationLink">
+              <span class="uplink-icon">↗</span>
+              <span><b>GROUND STATION</b><small id="stationStatus">Receiving signal…</small></span>
+              <i></i>
+            </div>
+            <div class="uplink-row" id="satelliteLink">
+              <span class="uplink-icon">✦</span>
+              <span><b>SATELLITE RELAY</b><small id="satelliteStatus">Waiting for station handoff</small></span>
+              <i></i>
+            </div>
+            <div class="transmit-track"><span id="transmitProgress"></span></div>
+          </div>
+
+          <div class="log-panel">
+            <div class="log-heading"><span>EVENT STREAM</span><span id="logStatus">STANDBY</span></div>
+            <div id="eventLog" class="event-log" aria-live="polite">
+              <p><time>00:00</time><span>System armed. Awaiting dive command.</span></p>
+            </div>
+          </div>
+
+          <div class="legend">
+            <span><i class="legend-dot cyan"></i> Vehicle</span>
+            <span><i class="legend-dot coral"></i> Ice hazard</span>
+            <span><i class="legend-line"></i> 1 bar ≈ 10 m</span>
+          </div>
+        </aside>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
